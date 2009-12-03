@@ -1,0 +1,21 @@
+Doug:
+Generate a report of all trips currently underway.
+   Generate a statement of the account for any transmitter, giving the current balance, a history of all trips on the account, and the appropriate mailing address. (The more descriptive your output, the better.)
+Feature
+   -Report for toll company
+
+
+Jeff:
+Start a trip, which will prompt the user for whether this trip is paid via ticket or transmitter and make an entry in the trip table.
+End a trip, which will read out the toll due and prompt the user (presumably a toll collector) for whether or not the toll was paid. This will change records in the trip and transmitter tables.
+Allow a customer to add more money to the balance of any existing transmitter
+
+
+   
+   Generate a report of all trips currently underway.
+   Generate a statement of the account for any transmitter, giving the current balance, a history of all trips on the account, and the appropriate mailing address. (The more descriptive your output, the better.)
+   
+   
+   Feature
+   -Report for toll company
+   
