@@ -27,101 +27,101 @@ insert into transmitters
    values (3, 2, 40.25, 'BATMAN');
    
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (161, '161', 'Bellefonte' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (0, 161, '161', 'Bellefonte' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (100, '100B', 'Altoona' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (1, 100, '100B', 'Altoona' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (161, '161', 'Bellefonte' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (2, 161, '161', 'Bellefonte' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (99, '42C', 'Milton' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (3, 99, '42C', 'Milton' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (90, '50', 'Dubois' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (4, 90, '50', 'Dubois' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (162, '162', 'Boalsburg' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (5, 162, '162', 'Boalsburg' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (199, '20D', 'Tyrone' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (6, 199, '20D', 'Tyrone' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (115, '115', 'Williamsport' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (7, 115, '115', 'Williamsport' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (369, '369', 'Philadelphia' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (8, 369, '369', 'Philadelphia' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (400, '400B', 'Bloomsburg' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (9, 400, '400B', 'Bloomsburg' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (350, '350', 'Harrisburg' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (10, 350, '350', 'Harrisburg' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (325, '325', 'Pittsburg' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (11, 325, '325', 'Pittsburg' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (15, '15A', 'Erie' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (12, 15, '15A', 'Erie' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (400, '400', 'Reading' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (13, 400, '400', 'Reading' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (222, '222', 'York' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (14, 222, '222', 'York' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (333, '333', 'Carlisle' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (15, 333, '333', 'Carlisle' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (444, '444', 'Scranton' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (16, 444, '444', 'Scranton' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (111, '111', 'Bald Eagle' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (17, 111, '111', 'Bald Eagle' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (117, '117', 'Penns Valley' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (18, 117, '117', 'Penns Valley' );
 
 insert into exits
-(mile_marker, exit_number, nearest_town)
-values (353, '353', 'Indiana' );
+(exit_id, mile_marker, exit_number, nearest_town)
+values (19, 353, '353', 'Indiana' );
 
 insert into trips
-(trip_id, start_exit, end_exit, date, payment_type, transmitter_id, status, class)
-values (0, '161', '100B', '2009-12-02', 'Transmitter', 1, 'Paid', 'Car');
+(trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
+values (0, 0, 1, '2009-12-02', 'Transmitter', 1, 'Paid', 'Car');
 
 insert into trips
-(trip_id, start_exit, end_exit, date, payment_type, transmitter_id, status, class)
-values (1, '99', '117', '2009-12-05', 'Ticket', NULL, 'Completed But Not Paid', 'Car');
+(trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
+values (1, 3, 18, '2009-12-05', 'Ticket', NULL, 'Completed But Not Paid', 'Car');
 
 insert into trips
-(trip_id, start_exit, end_exit, date, payment_type, transmitter_id, status, class)
-values (2, '400', NULL, '2009-11-22', 'Transmitter', 2, 'Underway', 'Car');
+(trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
+values (2, 13, NULL, '2009-11-22', 'Transmitter', 2, 'Underway', 'Car');
 
 insert into trips
-(trip_id, start_exit, end_exit, date, payment_type, transmitter_id, status, class)
-values (3, '50', '192', '2009-11-29', 'Ticket', NULL, 'Paid', 'Truck');
+(trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
+values (3, 4, 16, '2009-11-29', 'Ticket', NULL, 'Paid', 'Truck');
 
 insert into trips
-(trip_id, start_exit, end_exit, date, payment_type, transmitter_id, status, class)
-values (4, '162', '42C', '2009-12-03', 'Transmitter', 0, 'Paid', 'Truck');
+(trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
+values (4, 5, 3, '2009-12-03', 'Transmitter', 0, 'Paid', 'Truck');
