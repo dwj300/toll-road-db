@@ -45,7 +45,7 @@ public class CustomerManagement extends JApplet implements ActionListener
     private JTextField jtfAddMoney;
 
     private JButton jbSubmit;
-    private JButton jbCancel;
+    private JButton jbClose;
 
     DecimalFormat currencyFormat = new DecimalFormat("$###,###.00");
 
@@ -61,6 +61,7 @@ public class CustomerManagement extends JApplet implements ActionListener
             sqlStatementNames = dbConnection.createStatement();
             sqlStatementTransmitters = dbConnection.createStatement();
             sqlStatementAccountBalance = dbConnection.createStatement();
+            sqlStatementUpdateAccountBalance = dbConnection.createStatement();
         }
         catch(InstantiationException ie)
         {
@@ -110,8 +111,8 @@ public class CustomerManagement extends JApplet implements ActionListener
 
         jbSubmit = new JButton("Submit");
         jbSubmit.addActionListener(this);
-        jbCancel = new JButton("Cancel");
-        jbCancel.addActionListener(this);
+        jbClose = new JButton("Close");
+        jbClose.addActionListener(this);
 
         jpCustRecords.setLayout(flMain);
         jpCustRecords.add(jlCustName);
@@ -127,7 +128,7 @@ public class CustomerManagement extends JApplet implements ActionListener
 
         jpButtons.setLayout(flMain);
         jpButtons.add(jbSubmit);
-        jpButtons.add(jbCancel);
+        jpButtons.add(jbClose);
 
         jpMain.setLayout(flMain);
         jpMain.add(jpCustRecords);
@@ -216,16 +217,22 @@ public class CustomerManagement extends JApplet implements ActionListener
             }
             Double dblwCurrentBalance = new Double(strCurrentBalance);
 
-            double dblNewAccountBalance = dblwAddMoney.doubleValue() + dblwCurrentBalance.doubleValue();
+            Double dblwNewAccountBalance = dblwAddMoney + dblwCurrentBalance;
 
             try
             {
-                sqlStatementUpdateAccountBalance.execute("update transmitters set account_balance = " + dblNewAccountBalance + " where transmitter_id = " + jcbCustTransmitters.getSelectedItem().toString());
+                sqlStatementUpdateAccountBalance.execute("update transmitters set account_balance = " + dblwNewAccountBalance.toString() + " where transmitter_id = " + jcbCustTransmitters.getSelectedItem());
+                jlCustAccountBalance.setText(currencyFormat.format(dblwNewAccountBalance.doubleValue()));
             }
             catch(SQLException sqle)
             {
 
             }
+        }
+
+        if(e.getSource() == jbClose)
+        {
+            System.exit(0);
         }
     }
 }
