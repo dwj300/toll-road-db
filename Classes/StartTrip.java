@@ -1,4 +1,6 @@
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -377,26 +379,77 @@ public class StartTrip extends JApplet implements ActionListener
         }
     }
 
+    @Override
+    public void destroy()
+    {
+        try
+        {
+            dbConnection.close();
+
+            sqlStatementGetExits.close();
+            sqlStatementGetTransmitter.close();
+            sqlStatementGetTripIDvalue.close();
+            sqlStatementInsertTrip.close();
+            sqlStatementGetStartExitID.close();
+            sqlStatementGetEndExitID.close();
+
+            sqlResultsGetExits.close();
+            sqlResultsGetTransmitter.close();
+            sqlResultsGetTripIDvalue.close();
+            sqlResultsGetStartExitID.close();
+            sqlResultsGetEndExitID.close();
+        }
+        catch (SQLException sqle)
+        {
+
+        }
+    }
+
     public void actionPerformed(ActionEvent e) 
     {
         if(e.getSource() == jbSubmit)
         {
             String newTrip = "";
+            boolean isSuccessful = false;
+            boolean areExitsValid = false;
+            boolean isDateValid = true;
             dbTrip_ID = new Integer(jlTripIDvalue.getText());
             dbDate = jtfDate.getText();
-            if(dbTransmitter_IDstring == "NULL" && dbStart_Exit_ID != dbEnd_Exit_ID && dbDate != "yyyy-mm-dd")
+
+            if(dbStart_Exit_ID != dbEnd_Exit_ID)
+            {
+                areExitsValid = true;
+            }
+            else
+            {
+                areExitsValid = false;
+            }
+
+            if(dbDate.compareTo("yyyy-mm-dd") == 0)
+            {
+                isDateValid = false;
+            }
+            else
+            {
+                isDateValid = true;
+            }
+
+            // Payment_Type is Ticket
+            if(dbTransmitter_IDstring.compareTo("NULL") == 0 && areExitsValid && isDateValid)
             {
                 newTrip = "insert into trips (trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class) " +
                 "values (" + dbTrip_ID + ", " + dbStart_Exit_ID + ", " + dbEnd_Exit_ID + ", '" + dbDate + "', '" + dbPayment_Type + "', "
                 + dbTransmitter_IDstring + ", '" + dbTrip_Status + "', '" + dbVehicle_Class + "')";
+                isSuccessful = true;
             }
-            else if (dbStart_Exit_ID != dbEnd_Exit_ID && dbDate != "yyyy-mm-dd")
+            // Payment_Type is Transmitter
+            else if(areExitsValid && isDateValid)
             {
                 newTrip = "insert into trips (trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class) " +
                 "values (" + dbTrip_ID + ", " + dbStart_Exit_ID + ", " + dbEnd_Exit_ID + ", '" + dbDate + "', '" + dbPayment_Type + "', "
                 + dbTransmitter_ID + ", '" + dbTrip_Status + "', '" + dbVehicle_Class + "')";
+                isSuccessful = true;
             }
-
             try
             {
                 sqlStatementInsertTrip.execute(newTrip);
@@ -405,7 +458,7 @@ public class StartTrip extends JApplet implements ActionListener
             {
 
             }
-            if(dbStart_Exit_ID != dbEnd_Exit_ID && dbDate != "yyyy-mm-dd")
+            if(isSuccessful)
             {
                 jlSubmitStatus.setText("Successful!");
                 jlTripIDvalue.setText(new Integer(dbTrip_ID + 1).toString());
@@ -417,15 +470,18 @@ public class StartTrip extends JApplet implements ActionListener
                 jrbCar.setSelected(true);
                 jcbStatus.setSelectedIndex(0);
             }
-            else if(dbStart_Exit_ID == dbEnd_Exit_ID && dbDate != "yyyy-mm-dd")
+            // If only the exits are the same
+            if(!areExitsValid && isDateValid)
             {
                 jlSubmitStatus.setText("Cannot have same exits.");
             }
-            else if(dbDate == "yyyy-mm-dd" && dbStart_Exit_ID != dbEnd_Exit_ID)
+            // If only the date is the same
+            else if(!isDateValid && areExitsValid)
             {
                 jlSubmitStatus.setText("Invalid Date");
             }
-            else if(dbStart_Exit_ID == dbEnd_Exit_ID && dbDate == "yyyy-mm-dd")
+            // If both are the same
+            else if(!areExitsValid && !isDateValid)
             {
                 jlSubmitStatus.setText("Cannot have same exits. Invalid date.");
             }
