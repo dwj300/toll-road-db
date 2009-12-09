@@ -22,6 +22,7 @@ public class Applet extends JApplet implements ActionListener
     private JButton startButton;
     private JButton endButton;
     private JButton depositButton;
+    private JButton statementButton;
 
     private BorderLayout appletLayout;
     private BorderLayout tablePanelLayout;
@@ -32,16 +33,18 @@ public class Applet extends JApplet implements ActionListener
 
     private JTable resultsTable;
 
-    private String[] columnNames = {"Start exit", "End exit", "Date", "Payment",
-                                    "Class"};
-    private Object[][] data = new Object[15][5];
+    private final String[] COLUMN_NAMES = {"Start exit", "End exit", "Date", "Payment",
+                                    "Class", "Status", "Customer"};
+    private Object[][] data = new Object[20][7];
 
     @Override
     public void init()
     {
+        setSize(600, 400);
         startButton = new JButton("Start trip");
         endButton = new JButton("End trip");
         depositButton = new JButton("Deposit money");
+        statementButton = new JButton("Account Statement");
 
         appletLayout = new BorderLayout();
         tablePanelLayout = new BorderLayout();
@@ -50,7 +53,7 @@ public class Applet extends JApplet implements ActionListener
         buttonPanel = new JPanel();
         tablePanel = new JPanel();
 
-        resultsTable = new JTable(data, columnNames);
+        resultsTable = new JTable(data, COLUMN_NAMES);
 
         this.setLayout(appletLayout);
         buttonPanel.setLayout(buttonPanelLayout);
@@ -59,11 +62,13 @@ public class Applet extends JApplet implements ActionListener
         startButton.addActionListener(this);
         endButton.addActionListener(this);
         depositButton.addActionListener(this);
+        statementButton.addActionListener(this);
 
 
-        buttonPanel.add(startButton, FlowLayout.LEFT);
-        buttonPanel.add(endButton, FlowLayout.CENTER);
-        buttonPanel.add(depositButton, FlowLayout.RIGHT);
+        buttonPanel.add(startButton);
+        buttonPanel.add(endButton);
+        buttonPanel.add(depositButton);
+        buttonPanel.add(statementButton);
 
         tablePanel.add(resultsTable.getTableHeader(), BorderLayout.NORTH);
         tablePanel.add(resultsTable, BorderLayout.CENTER);
@@ -71,7 +76,6 @@ public class Applet extends JApplet implements ActionListener
         add(buttonPanel, BorderLayout.NORTH);
         add(tablePanel, BorderLayout.CENTER);
         update();
-
     }
 
     public void update()
@@ -84,8 +88,10 @@ public class Applet extends JApplet implements ActionListener
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
             Connection myConnection = DriverManager.getConnection(DBURL , DBUSER, DBPASS);
             Statement stmt = myConnection.createStatement();
-            tempQuerry = "select * from TRIPS";
+
+            tempQuerry = "select (select EXIT_NUMBER from EXITS where EXIT_ID = t.START_EXIT_ID) START_EXIT, (select EXIT_NUMBER from EXITS where EXIT_ID = t.END_EXIT_ID) END_EXIT, DATE, PAYMENT_TYPE, CLASS, STATUS, (select NAME from CUSTOMERS c where CUSTOMER_ID = (select CUSTOMER_ID from TRANSMITTERS where TRANSMITTER_ID = t.TRANSMITTER_ID)) CUSTOMER  from TRIPS t";
             results = stmt.executeQuery(tempQuerry);
+
             while(results.next())
             {
                 resultsTable.setValueAt(results.getString("START_EXIT"), row, 0);
@@ -93,6 +99,8 @@ public class Applet extends JApplet implements ActionListener
                 resultsTable.setValueAt(results.getString("DATE"), row, 2);
                 resultsTable.setValueAt(results.getString("PAYMENT_TYPE"), row, 3);
                 resultsTable.setValueAt(results.getString("CLASS"), row, 4);
+                resultsTable.setValueAt(results.getString("STATUS"), row, 5);
+                resultsTable.setValueAt(results.getString("CUSTOMER"), row, 6);
 
                 row++;
             }
@@ -129,6 +137,11 @@ public class Applet extends JApplet implements ActionListener
         {
             CustomerManagement deposit = new CustomerManagement();
             deposit.init();
+        }
+        else if(e.getSource() == statementButton)
+        {
+            AccountStatement statement = new AccountStatement();
+            statement.init();
         }
     }
 }
