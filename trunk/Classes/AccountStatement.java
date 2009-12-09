@@ -3,7 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.*;
-import javax.swing.table.TableModel;
+import javax.swing.table.DefaultTableModel;
 
 public class AccountStatement extends JApplet implements ActionListener
 {
@@ -225,7 +225,9 @@ public class AccountStatement extends JApplet implements ActionListener
     {
         String tempQuerry = "";
         int row = 0;
-        historyTable.removeRowSelectionInterval(0, historyTable.getRowCount() - 1);
+
+        clearTable();
+
         try
         {
             tempQuerry = "select (select EXIT_NUMBER from EXITS where EXIT_ID = t.START_EXIT_ID) START_EXIT, (select EXIT_NUMBER from EXITS where EXIT_ID = t.END_EXIT_ID) END_EXIT, DATE, PAYMENT_TYPE, CLASS, STATUS from TRIPS t where TRANSMITTER_ID = " + transmitter_id;
@@ -251,5 +253,16 @@ public class AccountStatement extends JApplet implements ActionListener
         {
             System.out.println("An unknown error has occurred.");
         }
+    }
+
+    private void clearTable()
+    {
+        for(int r = 0; r < 20; r++)
+        {
+            for(int c = 0; c < 6; c++)
+            {
+                historyTable.setValueAt(null, r, c);
+            }
+        }     
     }
 }
