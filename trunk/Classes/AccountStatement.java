@@ -3,62 +3,60 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.*;
+import javax.swing.table.TableModel;
 
 public class AccountStatement extends JApplet implements ActionListener
 {
-    private final String[] COLUMN_NAMES = {"Start exit", "End exit", "Date", 
-                                           "Payment", "Class", "Status"};
-    private Object[][] data = new Object[20][6];
+    private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";
+    private final String DBUSER = "root";
+    private final String DBPASS = "root";
+    private final String[] COLUMN_NAMES = {"Start exit", "End exit", "Date", "Payment", "Class", "Status"};
 
     private final int JFRAME_WIDTH = 475;
     private final int JFRAME_HEIGHT = 600;
+
+    private Object[][] data = new Object[20][6];
 
     private JTable historyTable;
 
     private Connection dbConnection;
 
-    private Statement sqlStatementNames;
-    private Statement sqlStatementTransmitters;
-    private Statement sqlStatementAccountBalance;
-    private Statement sqlStatementAddress;
-    private Statement sqlStatementHistory;
+    private Statement statementNames;
+    private Statement statementTransmitters;
+    private Statement statementAccountBalance;
+    private Statement statementHistory;
+    private Statement statementAddress;
 
-    private ResultSet sqlResultsNames;
-    private ResultSet sqlResultsTransmitters;
-    private ResultSet sqlResultsAccountBalance;
-    private ResultSet sqlResultsAccountAddress;
-    private ResultSet sqlResultsAccountHistory;
+    private ResultSet resultsNames;
+    private ResultSet resultsTransmitters;
+    private ResultSet resultsAccountBalance;
+    private ResultSet resultsAccountAddress;
+    private ResultSet resultsAccountHistory;
 
+    private JFrame window;
 
-    private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";
-    private final String DBUSER = "root";
-    private final String DBPASS = "root";
+    private JPanel customersPanel;
+    private JPanel mainPanel;
+    private JPanel tablePanel;
+    private JPanel infoPanel;
 
-    private JFrame jfCustWindow;
-
-    private JPanel jpCustRecords;
-    private JPanel jpMain;
-    private JPanel jpTable;
-    private JPanel jpInfo;
-
-    private FlowLayout flMain;
+    private FlowLayout mainFlowLayout;
     private BorderLayout tableLayout;
 
-    private JComboBox jcbCustNames;
-    private JComboBox jcbCustTransmitters;
+    private JComboBox custNamesDropDown;
+    private JComboBox custTransmittersDropDown;
 
-    private JLabel jlCustName;
-    private JLabel jlCustTransmitter;
-    private JLabel jlCustAccountBalanceLabel;
-    private JLabel jlCustAccountBalance;
-    private JLabel jlCustAddressLabel;
-    private JLabel jlCustAddress;
+    private JLabel custNameLabel;
+    private JLabel custTransmitterLabel;
+    private JLabel custAccountBalanceLabel;
+    private JLabel custAccountBalance;
+    private JLabel custAddressLabel;
+    private JLabel custAddress;
  
-   
     private DecimalFormat currencyFormat = new DecimalFormat("$###,###.00");
 
-    private String strCurrentBalance;
-    private String strAddress;
+    private String currentBalance;
+    private String address;
 
     private int transmitter_id;
 
@@ -68,153 +66,157 @@ public class AccountStatement extends JApplet implements ActionListener
         {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
             dbConnection = DriverManager.getConnection(DBURL , DBUSER , DBPASS);
-            sqlStatementNames = dbConnection.createStatement();
-            sqlStatementTransmitters = dbConnection.createStatement();
-            sqlStatementAccountBalance = dbConnection.createStatement();
-            sqlStatementAddress = dbConnection.createStatement();
-            sqlStatementHistory = dbConnection.createStatement();
+            statementNames = dbConnection.createStatement();
+            statementTransmitters = dbConnection.createStatement();
+            statementAccountBalance = dbConnection.createStatement();
+            statementHistory = dbConnection.createStatement();
+            statementAddress = dbConnection.createStatement();
         }
         catch(InstantiationException ie)
         {
-            System.out.println("ie");
+            System.out.println("An Instantiation exception has occurred");
         }
         catch(IllegalAccessException iae)
         {
-            System.out.println("iae");
+            System.out.println("Am IllegalAccess exception has occurred");
         }
         catch(ClassNotFoundException cnfe)
         {
-            System.out.println("cnfe");
+            System.out.println("A class not found exception has occurred");
         }
         catch(SQLException sqle)
         {
-            System.out.println("sqle");
+            System.out.println("A SQL exception has occurred");
         }
     }
 
     @Override
     public void init()
     {
-        jfCustWindow = new JFrame("Account Statement");
+        window = new JFrame("Account Statement");
 
-        jpCustRecords = new JPanel();
-        jpMain = new JPanel();
-        jpTable = new JPanel();
-        jpInfo = new JPanel();
+        customersPanel = new JPanel();
+        mainPanel = new JPanel();
+        tablePanel = new JPanel();
+        infoPanel = new JPanel();
 
-        flMain = new FlowLayout();
+        mainFlowLayout = new FlowLayout();
         tableLayout = new BorderLayout();
 
-        jpTable.setLayout(tableLayout);
-        jpCustRecords.setLayout(flMain);
-        jpMain.setLayout(flMain);
-        jpInfo.setLayout(flMain);
+        tablePanel.setLayout(tableLayout);
+        customersPanel.setLayout(mainFlowLayout);
+        mainPanel.setLayout(mainFlowLayout);
+        infoPanel.setLayout(mainFlowLayout);
 
-        jcbCustNames = new JComboBox();
-        jcbCustNames.setMaximumRowCount(5);
-        jcbCustNames.addActionListener(this);
+        custNamesDropDown = new JComboBox();
+        custNamesDropDown.setMaximumRowCount(5);
+        custNamesDropDown.addActionListener(this);
 
-        jcbCustTransmitters = new JComboBox();
-        jcbCustTransmitters.setMaximumRowCount(5);
-        jcbCustTransmitters.addActionListener(this);
+        custTransmittersDropDown = new JComboBox();
+        custTransmittersDropDown.setMaximumRowCount(5);
+        custTransmittersDropDown.addActionListener(this);
 
-        jlCustName = new JLabel("Select Customer: ");
-        jlCustTransmitter = new JLabel("Select Transmitter: ");
-        jlCustAccountBalanceLabel = new JLabel("Account Balance: ");
-        jlCustAccountBalance = new JLabel("");
-        jlCustAddressLabel = new JLabel("Address: ");
-        jlCustAddress = new JLabel("");
-
-
-
-
+        custNameLabel = new JLabel("Select Customer: ");
+        custTransmitterLabel = new JLabel("Select Transmitter: ");
+        custAccountBalanceLabel = new JLabel("Account Balance: ");
+        custAccountBalance = new JLabel("");
+        custAddressLabel = new JLabel("Address: ");
+        custAddress = new JLabel("");
 
         historyTable = new JTable(data, COLUMN_NAMES);
 
-        jpTable.add(historyTable.getTableHeader(), BorderLayout.NORTH);
-        jpTable.add(historyTable, BorderLayout.CENTER);
+        tablePanel.add(historyTable.getTableHeader(), BorderLayout.NORTH);
+        tablePanel.add(historyTable, BorderLayout.CENTER);
 
+        customersPanel.add(custNameLabel);
+        customersPanel.add(custNamesDropDown);
+        customersPanel.add(custTransmitterLabel);
+        customersPanel.add(custTransmittersDropDown);
 
-        jpCustRecords.add(jlCustName);
-        jpCustRecords.add(jcbCustNames);
-        jpCustRecords.add(jlCustTransmitter);
-        jpCustRecords.add(jcbCustTransmitters);
+        infoPanel.add(custAccountBalanceLabel);
+        infoPanel.add(custAccountBalance);
+        infoPanel.add(custAddressLabel);
+        infoPanel.add(custAddress);
 
-        jpInfo.add(jlCustAccountBalanceLabel);
-        jpInfo.add(jlCustAccountBalance);
-        jpInfo.add(jlCustAddressLabel);
-        jpInfo.add(jlCustAddress);
+        tablePanel.add(historyTable);
 
-        jpTable.add(historyTable);
-
-        
-        jpMain.add(jpCustRecords);
-        jpMain.add(jpInfo);
-        jpMain.add(jpTable);
+        mainPanel.add(customersPanel);
+        mainPanel.add(infoPanel);
+        mainPanel.add(tablePanel);
  
-        jfCustWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        jfCustWindow.setSize(JFRAME_WIDTH, JFRAME_HEIGHT);
-        jfCustWindow.setVisible(true);
-        jfCustWindow.setResizable(false);
-        jfCustWindow.add(jpMain);
+        window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        window.setSize(JFRAME_WIDTH, JFRAME_HEIGHT);
+        window.setVisible(true);
+        window.setResizable(false);
+        window.add(mainPanel);
         setSize(0,0);
 
         try
         {
-            jcbCustNames.removeAllItems();
-            sqlResultsNames = sqlStatementNames.executeQuery("select name from customers");
-            while(sqlResultsNames.next())
+            custNamesDropDown.removeAllItems();
+            resultsNames = statementNames.executeQuery("select name from customers");
+            while(resultsNames.next())
             {
-                jcbCustNames.addItem(sqlResultsNames.getString("name"));
+                custNamesDropDown.addItem(resultsNames.getString("name"));
             }
         }
         catch(SQLException sqle)
         {
-
+            System.out.println("A SQL exception has occurred");
         }
+
         update();
     }
 
     public void actionPerformed(ActionEvent e)
     {
-        if(e.getSource() == jcbCustNames)
+        if(e.getSource() == custNamesDropDown)
         {
             try
             {
-                jcbCustTransmitters.removeAllItems();
-                sqlResultsTransmitters = sqlStatementTransmitters.executeQuery("select transmitter_id from transmitters where customer_id = (select customer_id from customers where name = '" + jcbCustNames.getSelectedItem().toString() + "')");
-                while(sqlResultsTransmitters.next())
+                custTransmittersDropDown.removeAllItems();
+                resultsTransmitters = statementTransmitters.executeQuery("select transmitter_id from transmitters where customer_id = (select customer_id from customers where name = '" + custNamesDropDown.getSelectedItem().toString() + "')");
+                while(resultsTransmitters.next())
                 {
-                    jcbCustTransmitters.addItem(sqlResultsTransmitters.getString("transmitter_id"));
+                    custTransmittersDropDown.addItem(resultsTransmitters.getString("transmitter_id"));
                 }
             }
             catch(SQLException sqle)
             {
-
+                System.out.println("A SQL exception has occurred");
             }
         }
 
-        if(e.getSource() == jcbCustTransmitters)
+        if(e.getSource() == custTransmittersDropDown)
         {
             try
             {
                 try
                 {
-                    transmitter_id = Integer.parseInt(jcbCustTransmitters.getSelectedItem().toString());
-                    sqlResultsAccountBalance = sqlStatementAccountBalance.executeQuery("select account_balance from transmitters where transmitter_id = " + transmitter_id);
+                    transmitter_id = Integer.parseInt(custTransmittersDropDown.getSelectedItem().toString());
+                    resultsAccountBalance = statementAccountBalance.executeQuery("select account_balance from transmitters where transmitter_id = " + transmitter_id);
+                    resultsAccountAddress = statementAddress.executeQuery("select ADDRESS from CUSTOMERS where CUSTOMER_ID = (select CUSTOMER_ID from TRANSMITTERS where TRANSMITTER_ID = " + transmitter_id + ")");
+
+                    update();
                 }
                 catch(NullPointerException npe)
                 {
-
+                    System.out.println("A null pointer exception has occurred");
                 }
-                while(sqlResultsAccountBalance.next())
+                while(resultsAccountBalance.next())
                 {
-                    jlCustAccountBalance.setText(currencyFormat.format(sqlResultsAccountBalance.getDouble("account_balance")));
+                    custAccountBalance.setText(currencyFormat.format(resultsAccountBalance.getDouble("account_balance")));
+                }
+                while(resultsAccountAddress.next())
+                {
+                    address = resultsAccountAddress.getString("ADDRESS");
+                    custAddress.setText(address);
+                    System.out.println(address);
                 }
             }
             catch(SQLException sqle)
             {
-
+                System.out.println("A SQL exception has occurred");
             }
         }
     }
@@ -223,19 +225,20 @@ public class AccountStatement extends JApplet implements ActionListener
     {
         String tempQuerry = "";
         int row = 0;
+        historyTable.removeRowSelectionInterval(0, historyTable.getRowCount() - 1);
         try
         {
             tempQuerry = "select (select EXIT_NUMBER from EXITS where EXIT_ID = t.START_EXIT_ID) START_EXIT, (select EXIT_NUMBER from EXITS where EXIT_ID = t.END_EXIT_ID) END_EXIT, DATE, PAYMENT_TYPE, CLASS, STATUS from TRIPS t where TRANSMITTER_ID = " + transmitter_id;
-            sqlResultsAccountHistory = sqlStatementHistory.executeQuery(tempQuerry);
+            resultsAccountHistory = statementHistory.executeQuery(tempQuerry);
 
-            while(sqlResultsAccountHistory.next())
+            while(resultsAccountHistory.next())
             {
-                historyTable.setValueAt(sqlResultsAccountHistory.getString("START_EXIT"), row, 0);
-                historyTable.setValueAt(sqlResultsAccountHistory.getString("END_EXIT"), row, 1);
-                historyTable.setValueAt(sqlResultsAccountHistory.getString("DATE"), row, 2);
-                historyTable.setValueAt(sqlResultsAccountHistory.getString("PAYMENT_TYPE"), row, 3);
-                historyTable.setValueAt(sqlResultsAccountHistory.getString("CLASS"), row, 4);
-                historyTable.setValueAt(sqlResultsAccountHistory.getString("STATUS"), row, 5);
+                historyTable.setValueAt(resultsAccountHistory.getString("START_EXIT"), row, 0);
+                historyTable.setValueAt(resultsAccountHistory.getString("END_EXIT"), row, 1);
+                historyTable.setValueAt(resultsAccountHistory.getString("DATE"), row, 2);
+                historyTable.setValueAt(resultsAccountHistory.getString("PAYMENT_TYPE"), row, 3);
+                historyTable.setValueAt(resultsAccountHistory.getString("CLASS"), row, 4);
+                historyTable.setValueAt(resultsAccountHistory.getString("STATUS"), row, 5);
 
                 row++;
             }

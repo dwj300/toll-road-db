@@ -127,7 +127,8 @@ public class Applet extends JApplet implements ActionListener
     {
         if(e.getSource() == startButton)
         {
-
+            StartTrip start = new StartTrip();
+            start.init();
         }
         else if(e.getSource() == endButton)
         {
