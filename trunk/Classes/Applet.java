@@ -72,7 +72,7 @@ public class Applet extends JApplet implements ActionListener
 
         resultsTable = new JTable(data, COLUMN_NAMES);
 
-        this.setLayout(appletLayout);
+        setLayout(appletLayout);
         buttonPanel.setLayout(buttonPanelLayout);
         tablePanel.setLayout(tablePanelLayout);
 
@@ -93,7 +93,12 @@ public class Applet extends JApplet implements ActionListener
         
         add(buttonPanel, BorderLayout.NORTH);
         add(tablePanel, BorderLayout.CENTER);
-        
+        startDBConnection();
+        update();
+    }
+
+    private void startDBConnection()
+    {
         try
         {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
@@ -120,10 +125,7 @@ public class Applet extends JApplet implements ActionListener
         {
             System.out.println("An unknown error has occurred.");
         }
-
-        update();
     }
-
     public void update()
     {
         rowCounter = 0;
