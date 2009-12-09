@@ -6,7 +6,7 @@
  * @version 1.0.0
  */
  
-package org.sourceforge.jcalendarbutton;
+//package org.sourceforge.jcalendarbutton;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

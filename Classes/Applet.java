@@ -15,6 +15,10 @@ import javax.swing.JTable;
 
 public class Applet extends JApplet implements ActionListener
 {
+    private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";
+    private final String DBUSER = "root";
+    private final String DBPASS = "root";
+
     private JButton startButton;
     private JButton endButton;
     private JButton depositButton;
@@ -78,7 +82,7 @@ public class Applet extends JApplet implements ActionListener
         try
         {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
-            Connection myConnection = DriverManager.getConnection("jdbc:derby://localhost:1527/toll_road" , "root", "root");
+            Connection myConnection = DriverManager.getConnection(DBURL , DBUSER, DBPASS);
             Statement stmt = myConnection.createStatement();
             tempQuerry = "select * from TRIPS";
             results = stmt.executeQuery(tempQuerry);
@@ -123,7 +127,8 @@ public class Applet extends JApplet implements ActionListener
         }
         else if(e.getSource() == depositButton)
         {
-            
+            CustomerManagement deposit = new CustomerManagement();
+            deposit.init();
         }
     }
 }
