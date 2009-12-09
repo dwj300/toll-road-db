@@ -3,7 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.*;
-import org.sourceforge.jcalendarbutton.JCalendarButton;
+//import org.sourceforge.jcalendarbutton.JCalendarButton;
 
 public class JCalendarExample extends JApplet
 {
