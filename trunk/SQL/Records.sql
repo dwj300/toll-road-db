@@ -36,7 +36,7 @@ values (1, 100, '100B', 'Altoona' );
 
 insert into exits
 (exit_id, mile_marker, exit_number, nearest_town)
-values (2, 161, '161', 'Bellefonte' );
+values (2, 162, '162', 'Pinecroft' );
 
 insert into exits
 (exit_id, mile_marker, exit_number, nearest_town)

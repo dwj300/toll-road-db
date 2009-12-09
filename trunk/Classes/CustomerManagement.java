@@ -45,7 +45,6 @@ public class CustomerManagement extends JApplet implements ActionListener
     private JTextField jtfAddMoney;
 
     private JButton jbSubmit;
-    private JButton jbClose;
 
     DecimalFormat currencyFormat = new DecimalFormat("$###,###.00");
 
@@ -111,8 +110,6 @@ public class CustomerManagement extends JApplet implements ActionListener
 
         jbSubmit = new JButton("Submit");
         jbSubmit.addActionListener(this);
-        jbClose = new JButton("Close");
-        jbClose.addActionListener(this);
 
         jpCustRecords.setLayout(flMain);
         jpCustRecords.add(jlCustName);
@@ -128,7 +125,6 @@ public class CustomerManagement extends JApplet implements ActionListener
 
         jpButtons.setLayout(flMain);
         jpButtons.add(jbSubmit);
-        jpButtons.add(jbClose);
 
         jpMain.setLayout(flMain);
         jpMain.add(jpCustRecords);
@@ -159,6 +155,29 @@ public class CustomerManagement extends JApplet implements ActionListener
         strAddMoney = "";
     }
 
+    @Override
+    public void destroy()
+    {
+        try
+        {
+            dbConnection.close();
+
+            sqlStatementNames.close();
+            sqlStatementTransmitters.close();
+            sqlStatementAccountBalance.close();
+            sqlStatementUpdateAccountBalance.close();
+
+            sqlResultsNames.close();
+            sqlResultsTransmitters.close();
+            sqlResultsAccountBalance.close();
+        }
+        catch(SQLException e)
+        {
+
+        }
+    }
+
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         if(e.getSource() == jcbCustNames)
@@ -190,6 +209,7 @@ public class CustomerManagement extends JApplet implements ActionListener
                 {
 
                 }
+                
                 while(sqlResultsAccountBalance.next())
                 {
                     jlCustAccountBalance.setText(currencyFormat.format(sqlResultsAccountBalance.getDouble("account_balance")));
@@ -228,11 +248,6 @@ public class CustomerManagement extends JApplet implements ActionListener
             {
 
             }
-        }
-
-        if(e.getSource() == jbClose)
-        {
-            System.exit(0);
         }
     }
 }
