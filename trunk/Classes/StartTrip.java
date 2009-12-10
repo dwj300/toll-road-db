@@ -80,9 +80,12 @@ public class StartTrip extends JApplet implements ActionListener
     private int dbTransmitter_ID;
     private String dbVehicle_Class;
     private String dbTrip_Status;
+	
+	private Applet applet;
 
-    public StartTrip()
+    public StartTrip(Applet applet)
     {
+		this.applet = applet;
         try
         {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
@@ -384,6 +387,7 @@ public class StartTrip extends JApplet implements ActionListener
         {
 
         }
+		applet.update();
     }
 
     public void actionPerformed(ActionEvent e) 
@@ -444,6 +448,7 @@ public class StartTrip extends JApplet implements ActionListener
             {
                 jlSubmitStatus.setText("Invalid Date");
             }
+			applet.update();
         }
 
         if(e.getSource() == jcbStartExit)

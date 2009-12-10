@@ -199,13 +199,13 @@ public class Applet extends JApplet implements ActionListener
     {
         if(e.getSource() == startButton)
         {
-            StartTrip start = new StartTrip();
-            start.init();
+            StartTrip start = new StartTrip(this); // Called with a reference to "this" so that it can
+            start.init();                          //   call update.
         }
         else if(e.getSource() == endButton)
         {
             EndTrip end = new EndTrip(this);  // Called with a reference to "this" so that it can call
-                                              // update.
+                                              //    update.
             end.init();
         }
         else if(e.getSource() == depositButton)
