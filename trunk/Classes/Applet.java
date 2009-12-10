@@ -71,7 +71,7 @@ public class Applet extends JApplet implements ActionListener
     // POST: The applet and gui are set up, and the database connection method is called. update is then
     //       called.
     {
-        setSize(APPLET_WIDTH, APPLET_HEIGHT);
+        setSize(APPLET_WIDTH, APPLET_HEIGHT);                 // Set size of the applet
 
         // INITIALIZE BUTTONS
         startButton = new JButton("Start trip");
@@ -127,9 +127,9 @@ public class Applet extends JApplet implements ActionListener
     {
         try
         {
-            Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
-            dbConnection = DriverManager.getConnection(DBURL , DBUSER, DBPASS);
-            tripsStatement = dbConnection.createStatement();
+            Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();   // Initialize driver
+            dbConnection = DriverManager.getConnection(DBURL , DBUSER, DBPASS);  // Create connection
+            tripsStatement = dbConnection.createStatement();                     // Initialize statement
         }
         catch (InstantiationException ie)
         {
@@ -163,15 +163,15 @@ public class Applet extends JApplet implements ActionListener
         {
             tripsQuerry = "select (select EXIT_NUMBER from EXITS where EXIT_ID = t.START_EXIT_ID) " +
                           "START_EXIT, (select EXIT_NUMBER from EXITS where EXIT_ID = t.END_EXIT_ID) " +
-                          "END_EXIT, DATE, PAYMENT_TYPE, CLASS, STATUS, (select NAME from CUSTOMERS c " +
-                          "where CUSTOMER_ID = (select CUSTOMER_ID from TRANSMITTERS where " +
+                          "END_EXIT, DATE, PAYMENT_TYPE, CLASS, STATUS, (select NAME from CUSTOMERS c" +
+                          " where CUSTOMER_ID = (select CUSTOMER_ID from TRANSMITTERS where " +
                           "TRANSMITTER_ID = t.TRANSMITTER_ID)) CUSTOMER  from TRIPS t";
 
-            tripsResults = tripsStatement.executeQuery(tripsQuerry);
+            tripsResults = tripsStatement.executeQuery(tripsQuerry);  // Execute SQL statement
             
             while(tripsResults.next())  // While there is another row
             {
-                // SET VALUES
+                // SET VALUES OF TABLE
                 tripsTable.setValueAt(tripsResults.getString("START_EXIT"), rowCounter, 0);
                 tripsTable.setValueAt(tripsResults.getString("END_EXIT"), rowCounter, 1);
                 tripsTable.setValueAt(tripsResults.getString("DATE"), rowCounter, 2);
@@ -180,7 +180,7 @@ public class Applet extends JApplet implements ActionListener
                 tripsTable.setValueAt(tripsResults.getString("STATUS"), rowCounter, 5);
                 tripsTable.setValueAt(tripsResults.getString("CUSTOMER"), rowCounter, 6);
 
-                rowCounter++;
+                rowCounter++;   // Increment rowcounter
             }
         }
         catch (SQLException sqle)
@@ -210,18 +210,18 @@ public class Applet extends JApplet implements ActionListener
         }
         else if(e.getSource() == depositButton)
         {
-            CustomerManagement deposit = new CustomerManagement();
-            deposit.init();
+            CustomerManagement deposit = new CustomerManagement(); // Call constructor
+            deposit.init();                                        // Call init method
         }
         else if(e.getSource() == statementButton)
         {
-            AccountStatement statement = new AccountStatement();
-            statement.init();
+            AccountStatement statement = new AccountStatement();  // Call constructor
+            statement.init();                                     // Call init method
         }
         else if(e.getSource() == tollReportButton)
         {
-            TollReport report = new TollReport();
-            report.init();
+            TollReport report = new TollReport();                 // Call constructor
+            report.init();                                        // Call init method
         }
     }
 

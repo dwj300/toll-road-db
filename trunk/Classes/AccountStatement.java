@@ -9,7 +9,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.*;
-import javax.swing.table.DefaultTableModel;
 
 public class AccountStatement extends JApplet implements ActionListener
 {
@@ -72,8 +71,10 @@ public class AccountStatement extends JApplet implements ActionListener
     {
         try
         {
-            Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
-            dbConnection = DriverManager.getConnection(DBURL , DBUSER , DBPASS);
+            Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();    // Set up driver
+            dbConnection = DriverManager.getConnection(DBURL , DBUSER , DBPASS);  // Start connection
+            
+            // INITIALIZE STATEMENTS
             statementNames = dbConnection.createStatement();
             statementTransmitters = dbConnection.createStatement();
             statementAccountBalance = dbConnection.createStatement();
@@ -136,11 +137,10 @@ public class AccountStatement extends JApplet implements ActionListener
         custAddressLabel = new JLabel("Address: ");
         custAddress = new JLabel("");
 
-        // sET UP TABLE AND ADD IT TO TABLE PANEL
+        // SET UP TABLE AND ADD IT TO TABLE PANEL
         historyTable = new JTable(data, COLUMN_NAMES);
         tablePanel.add(historyTable.getTableHeader(), BorderLayout.NORTH);
         tablePanel.add(historyTable, BorderLayout.CENTER);
-
 
         // ADD CUI COMPONENTS TO CUST. PANEL
         customersPanel.add(custNameLabel);
@@ -167,6 +167,7 @@ public class AccountStatement extends JApplet implements ActionListener
         window.add(mainPanel);
         setSize(0,0);
 
+        // POPULATE CUSTOMERS DROPDOWN
         try
         {
             custNamesDropDown.removeAllItems();
@@ -181,7 +182,7 @@ public class AccountStatement extends JApplet implements ActionListener
             System.out.println("A SQL exception has occurred");
         }
 
-        update();
+        update();     // Populate Table
     }
 
     public void actionPerformed(ActionEvent e)
