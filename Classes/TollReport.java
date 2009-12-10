@@ -17,8 +17,8 @@ public class TollReport extends JApplet
 {
     private final String[] COLUMN_NAMES = {"Exit Name", "Profit", "Prequency of Car", "Frequency of Truck", "Frequency of Transmitter", "Frequency of Ticket"};
 
-    private final int JFRAME_WIDTH = 475;
-    private final int JFRAME_HEIGHT = 600;
+    private final int JFRAME_WIDTH = 700;
+    private final int JFRAME_HEIGHT = 500;
 
     private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";
     private final String DBUSER = "root";
@@ -123,10 +123,12 @@ public class TollReport extends JApplet
     {
         int maxExit = 0;
         int row = 0;
-        double car = 0;
-        double truck = 0;
-        double transmitters = 0;
-        double tickets = 0;
+        int car = 0;
+        int truck = 0;
+        int classTotal = 0;
+        int transmitters = 0;
+        int tickets = 0;
+        int paymentTotal = 0;
         try
         {
             transactionsQuerry = "select max(EXIT_ID) from transactions";
@@ -144,38 +146,49 @@ public class TollReport extends JApplet
 
                 if(transactionsResults.next() == true)
                 {
-                   
                     transactionsQuerry = "select EXIT_NUMBER A from EXITS where exit_id = " + currentExit;
-                    
                     transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     reportTable.setValueAt(transactionsResults.getString("A"), row, 0);
-                                        
+
                     transactionsQuerry = "select sum(AMOUNT_PAID) A from transactions where exit_id = " + currentExit;
+                    transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     reportTable.setValueAt(transactionsResults.getDouble("A"), row, 1);
-             
+
                     transactionsQuerry = "select count(*) A from transactions where class = 'Car' and exit_id = " + currentExit;
+                    transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     car = transactionsResults.getInt("A");
+                    System.out.println("Car: " + car);
 
                     transactionsQuerry = "select count(*) A from transactions where class = 'Truck' and exit_id = " + currentExit;
+                    transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     truck = transactionsResults.getInt("A");
+                    System.out.println("Truck: " + truck);
 
-                    reportTable.setValueAt((car / (car + truck) + "%"), row, 2);
-                    reportTable.setValueAt((truck / (car + truck) + "%"), row, 3);
+                    classTotal = car + truck;
+                                        System.out.println("Class total: " + classTotal);
+
+                    reportTable.setValueAt("" + Integer.toString(car) + " / " + Integer.toString(classTotal), row, 2);
+                    reportTable.setValueAt("" + Integer.toString(truck) + " / " + Integer.toString(classTotal), row, 3);
                    
                     transactionsQuerry = "select count(*) A from transactions where payment_type = 'transmitters' and exit_id = " + currentExit;
+                    transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     transmitters = transactionsResults.getInt("A");
+                    System.out.println(transmitters);
 
                     transactionsQuerry = "select count(*) A from transactions where payment_type = 'tickets' and exit_id = " + currentExit;
+                    transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     tickets = transactionsResults.getInt("A");
+                    System.out.println(tickets);
 
-                    reportTable.setValueAt((transmitters / (transmitters + tickets) + "%"), row, 2);
-                    reportTable.setValueAt((tickets / (transmitters + tickets) + "%"), row, 3);
+                    paymentTotal = transmitters + tickets;
+                    reportTable.setValueAt("" + Integer.toString(transmitters) + " / " + Integer.toString(paymentTotal), row, 4);
+                    reportTable.setValueAt("" + Integer.toString(tickets) + " / " + Integer.toString(paymentTotal), row, 5);
 
                     row++;
                 }
