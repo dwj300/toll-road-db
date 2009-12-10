@@ -19,13 +19,11 @@ public class StartTrip extends JApplet implements ActionListener
     Statement sqlStatementGetTripIDvalue;
     Statement sqlStatementInsertTrip;
     Statement sqlStatementGetStartExitID;
-    Statement sqlStatementGetEndExitID;
     
     ResultSet sqlResultsGetExits;
     ResultSet sqlResultsGetTransmitter;
     ResultSet sqlResultsGetTripIDvalue;
     ResultSet sqlResultsGetStartExitID;
-    ResultSet sqlResultsGetEndExitID;
 
     private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";
     private final String DBUSER = "root";
@@ -47,17 +45,15 @@ public class StartTrip extends JApplet implements ActionListener
     private GridBagConstraints gbcMain;
     
     private JComboBox jcbStartExit;
-    private JComboBox jcbEndExit;
-    private JComboBox jcbStatus;
     private JComboBox jcbTransmitterID;
     
     private JLabel jlTripID;
     private JLabel jlTripIDvalue;
     private JLabel jlDate;
     private JLabel jlStartExit;
-    private JLabel jlEndExit;
     private JLabel jlTransmitterID;
     private JLabel jlTripStatus;
+    private JLabel jlTripStatusValue;
     private JLabel jlSubmitStatus;
     
     private JTextField jtfDate;
@@ -78,8 +74,7 @@ public class StartTrip extends JApplet implements ActionListener
     private String dbDate;
     private String dbStart_Exit;
     private int dbStart_Exit_ID;
-    private int dbEnd_Exit_ID;
-    private String dbEnd_Exit;
+    private String dbEnd_Exit_ID;
     private String dbPayment_Type;
     private String dbTransmitter_IDstring;
     private int dbTransmitter_ID;
@@ -97,7 +92,6 @@ public class StartTrip extends JApplet implements ActionListener
             sqlStatementGetTripIDvalue = dbConnection.createStatement();
             sqlStatementInsertTrip = dbConnection.createStatement();
             sqlStatementGetStartExitID = dbConnection.createStatement();
-            sqlStatementGetEndExitID = dbConnection.createStatement();
         }
         catch(InstantiationException ie)
         {
@@ -144,12 +138,6 @@ public class StartTrip extends JApplet implements ActionListener
         jcbStartExit = new JComboBox();
         jcbStartExit.setMaximumRowCount(3);
         jcbStartExit.addActionListener(this);
-        jcbEndExit = new JComboBox();
-        jcbEndExit.setMaximumRowCount(3);
-        jcbEndExit.addActionListener(this);
-        jcbStatus = new JComboBox(strTripStatus);
-        jcbStatus.setMaximumRowCount(3);
-        jcbStatus.addActionListener(this);
         jcbTransmitterID = new JComboBox();
         jcbTransmitterID.setMaximumRowCount(3);
         jcbTransmitterID.addActionListener(this);
@@ -158,10 +146,10 @@ public class StartTrip extends JApplet implements ActionListener
         jlTripIDvalue = new JLabel("");
         jlDate = new JLabel("Date: ");
         jlStartExit = new JLabel("Start Exit: ");
-        jlEndExit = new JLabel("End Exit: ");
         jlTransmitterID = new JLabel("Transmitter ID: ");
         jlTripStatus = new JLabel("Trip Status: ");
         jlSubmitStatus = new JLabel("");
+        jlTripStatusValue = new JLabel("Underway");
 
         jtfDate = new JTextField(10);
         jtfDate.setText("yyyy-mm-dd");
@@ -192,8 +180,6 @@ public class StartTrip extends JApplet implements ActionListener
         jpExits.add(jtfDate);
         jpExits.add(jlStartExit);
         jpExits.add(jcbStartExit);
-        jpExits.add(jlEndExit);
-        jpExits.add(jcbEndExit);
 
         jpPaymentType.setLayout(gblMain);
 
@@ -268,8 +254,8 @@ public class StartTrip extends JApplet implements ActionListener
         gbcMain.gridy = 0;
         gbcMain.gridwidth = 1;
         gbcMain.gridheight = 1;
-        gblMain.setConstraints(jcbStatus, gbcMain);
-        jpSubmit.add(jcbStatus);
+        gblMain.setConstraints(jlTripStatusValue, gbcMain);
+        jpSubmit.add(jlTripStatusValue);
 
         gbcMain.gridx = 0;
         gbcMain.gridy = 1;
@@ -325,9 +311,8 @@ public class StartTrip extends JApplet implements ActionListener
         dbTrip_ID = 0;
         dbDate = "";
         dbStart_Exit = "";
-        dbEnd_Exit = "";
         dbStart_Exit_ID = 0;
-        dbEnd_Exit_ID = 0;
+        dbEnd_Exit_ID = "NULL";
         dbPayment_Type = "Ticket";
         dbTransmitter_IDstring = "NULL";
         dbTransmitter_ID = 0;
@@ -351,12 +336,10 @@ public class StartTrip extends JApplet implements ActionListener
         try
         {
             jcbStartExit.removeAllItems();
-            jcbEndExit.removeAllItems();
             sqlResultsGetExits = sqlStatementGetExits.executeQuery("select exit_number, nearest_town from exits");
             while(sqlResultsGetExits.next())
             {
-                jcbStartExit.addItem(sqlResultsGetExits.getString("exit_number") + " : " + sqlResultsGetExits.getString("nearest_town"));
-                jcbEndExit.addItem(sqlResultsGetExits.getString("exit_number") + " : " + sqlResultsGetExits.getString("nearest_town"));
+                jcbStartExit.addItem(sqlResultsGetExits.getString("exit_number") + " : " + sqlResultsGetExits.getString("nearest_town"));               
             }
         }
         catch(SQLException sqle)
@@ -391,13 +374,11 @@ public class StartTrip extends JApplet implements ActionListener
             sqlStatementGetTripIDvalue.close();
             sqlStatementInsertTrip.close();
             sqlStatementGetStartExitID.close();
-            sqlStatementGetEndExitID.close();
 
             sqlResultsGetExits.close();
             sqlResultsGetTransmitter.close();
             sqlResultsGetTripIDvalue.close();
             sqlResultsGetStartExitID.close();
-            sqlResultsGetEndExitID.close();
         }
         catch (SQLException sqle)
         {
@@ -411,19 +392,9 @@ public class StartTrip extends JApplet implements ActionListener
         {
             String newTrip = "";
             boolean isSuccessful = false;
-            boolean areExitsValid = false;
             boolean isDateValid = true;
             dbTrip_ID = new Integer(jlTripIDvalue.getText());
             dbDate = jtfDate.getText();
-
-            if(dbStart_Exit_ID != dbEnd_Exit_ID)
-            {
-                areExitsValid = true;
-            }
-            else
-            {
-                areExitsValid = false;
-            }
 
             if(dbDate.compareTo("yyyy-mm-dd") == 0)
             {
@@ -435,7 +406,7 @@ public class StartTrip extends JApplet implements ActionListener
             }
 
             // Payment_Type is Ticket
-            if(dbTransmitter_IDstring.compareTo("NULL") == 0 && areExitsValid && isDateValid)
+            if(dbTransmitter_IDstring.compareTo("NULL") == 0 && isDateValid)
             {
                 newTrip = "insert into trips (trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class) " +
                 "values (" + dbTrip_ID + ", " + dbStart_Exit_ID + ", " + dbEnd_Exit_ID + ", '" + dbDate + "', '" + dbPayment_Type + "', "
@@ -443,7 +414,7 @@ public class StartTrip extends JApplet implements ActionListener
                 isSuccessful = true;
             }
             // Payment_Type is Transmitter
-            else if(areExitsValid && isDateValid)
+            else if(isDateValid)
             {
                 newTrip = "insert into trips (trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class) " +
                 "values (" + dbTrip_ID + ", " + dbStart_Exit_ID + ", " + dbEnd_Exit_ID + ", '" + dbDate + "', '" + dbPayment_Type + "', "
@@ -464,26 +435,14 @@ public class StartTrip extends JApplet implements ActionListener
                 jlTripIDvalue.setText(new Integer(dbTrip_ID + 1).toString());
                 jtfDate.setText("yyyy-mm-dd");
                 jcbStartExit.setSelectedIndex(0);
-                jcbEndExit.setSelectedIndex(0);
                 jrbTicket.setSelected(true);
                 jcbTransmitterID.setSelectedIndex(0);
                 jrbCar.setSelected(true);
-                jcbStatus.setSelectedIndex(0);
             }
-            // If only the exits are the same
-            if(!areExitsValid && isDateValid)
-            {
-                jlSubmitStatus.setText("Cannot have same exits.");
-            }
-            // If only the date is the same
-            else if(!isDateValid && areExitsValid)
+            // If the date is the same
+            else if(!isDateValid)
             {
                 jlSubmitStatus.setText("Invalid Date");
-            }
-            // If both are the same
-            else if(!areExitsValid && !isDateValid)
-            {
-                jlSubmitStatus.setText("Cannot have same exits. Invalid date.");
             }
         }
 
@@ -497,24 +456,6 @@ public class StartTrip extends JApplet implements ActionListener
                 while(sqlResultsGetStartExitID.next())
                 {
                     dbStart_Exit_ID = new Integer(sqlResultsGetStartExitID.getString("exit_id")).intValue();
-                }
-            }
-            catch(SQLException sqle)
-            {
-
-            }
-        }
-
-        if(e.getSource() == jcbEndExit)
-        {
-            dbEnd_Exit = jcbEndExit.getSelectedItem().toString();
-            dbEnd_Exit = dbEnd_Exit.substring(0, dbEnd_Exit.indexOf(" "));
-            try
-            {
-                sqlResultsGetEndExitID = sqlStatementGetEndExitID.executeQuery("select exit_id from exits where exit_number = '" + dbEnd_Exit + "'");
-                while(sqlResultsGetEndExitID.next())
-                {
-                    dbEnd_Exit_ID = new Integer(sqlResultsGetEndExitID.getString("exit_id")).intValue();
                 }
             }
             catch(SQLException sqle)
@@ -548,11 +489,6 @@ public class StartTrip extends JApplet implements ActionListener
         if(e.getSource() == jrbTruck)
         {
             dbVehicle_Class = "Truck";
-        }
-
-        if(e.getSource() == jcbStatus)
-        {
-            dbTrip_Status = jcbStatus.getSelectedItem().toString();
         }
 
         if(e.getSource() == jcbStartExit)
