@@ -166,7 +166,7 @@ public class TollReport extends JApplet
                             + currentExit;
                     transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
-                    reportTable.setValueAt(transactionsResults.getDouble("A"), row, 1);
+                    reportTable.setValueAt("$" + transactionsResults.getDouble("A"), row, 1);
 
                     transactionsQuerry = "select count(*) A from transactions where class = 'Car' and" +
                             " exit_id = " + currentExit;

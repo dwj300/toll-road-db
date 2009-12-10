@@ -108,7 +108,7 @@ values (19, 353, '353', 'Indiana' );
 
 insert into trips
 (trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
-values (0, 0, 1, '2009-12-02', 'Transmitter', 1, 'Paid', 'Car');
+values (0, 0, 1, '2009-12-02', 'Transmitter', 1, 'Completed But Not Paid', 'Car');
 
 insert into trips
 (trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
@@ -120,8 +120,8 @@ values (2, 13, NULL, '2009-11-22', 'Transmitter', 2, 'Underway', 'Car');
 
 insert into trips
 (trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
-values (3, 4, 16, '2009-11-29', 'Ticket', NULL, 'Paid', 'Truck');
+values (3, 4, 16, '2009-11-29', 'Ticket', NULL, 'Completed But Not Paid', 'Truck');
 
 insert into trips
 (trip_id, start_exit_id, end_exit_id, date, payment_type, transmitter_id, status, class)
-values (4, 5, 3, '2009-12-03', 'Transmitter', 0, 'Paid', 'Truck');
+values (4, 5, 3, '2009-12-03', 'Transmitter', 0, 'Completed But Not Paid', 'Truck');
