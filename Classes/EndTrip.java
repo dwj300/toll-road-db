@@ -104,13 +104,10 @@ public class EndTrip extends JApplet implements ActionListener
 
     private boolean dbTransmitter_IDboolean;
 
-    private Applet applet;
+    DecimalFormat currencyFormat = new DecimalFormat("$###,###.00");
 
-    private DecimalFormat currencyFormat = new DecimalFormat("$###,###.00");
-
-    public EndTrip(Applet applet)
+    public EndTrip()
     {
-        this.applet = applet;
         try
         {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
@@ -454,7 +451,6 @@ public class EndTrip extends JApplet implements ActionListener
     @Override
     public void destroy()
     {
-        applet.update();
         try
         {
             dbConnection.close();
@@ -478,9 +474,13 @@ public class EndTrip extends JApplet implements ActionListener
             sqlResultsGetEndExits.close();
             sqlResultsGetNewEndExit.close();
         }
-        catch (SQLException ex)
+        catch(SQLException sqle)
         {
 
+        }
+        catch(NullPointerException npe)
+        {
+            
         }
     }
 
@@ -575,12 +575,12 @@ public class EndTrip extends JApplet implements ActionListener
             }
         }
 
-        else if(e.getSource() == jcbChangeStatus)
+        if(e.getSource() == jcbChangeStatus)
         {
             dbNewStatus = jcbChangeStatus.getSelectedItem().toString();
         }
 
-        else if(e.getSource() == jbSubmit)
+        if(e.getSource() == jbSubmit)
         {
             newEndExit = jcbSelectEndExit.getSelectedItem().toString();
             newEndExit = newEndExit.substring(0, newEndExit.indexOf(" "));
@@ -636,6 +636,10 @@ public class EndTrip extends JApplet implements ActionListener
                             sqlStatementUpdateStatus.execute("update trips set status = '" + dbNewStatus + "' where trip_id = " + dbTrip_ID);
                             jlStatus.setText("Successfully Updated Transmitter and Trips, Paid");
                         }
+                        else
+                        {
+                            jlStatus.setText("");
+                        }
 
                     }
                 }
@@ -669,6 +673,10 @@ public class EndTrip extends JApplet implements ActionListener
                         {
                             sqlStatementUpdateStatus.execute("update trips set status = '" + dbNewStatus + "' where trip_id = " + dbTrip_ID);
                             jlStatus.setText("Successfully Updated Trips, Not Paid");
+                        }
+                        else
+                        {
+                            jlStatus.setText("");
                         }
                     }
                 }
@@ -722,7 +730,6 @@ public class EndTrip extends JApplet implements ActionListener
             {
 
             }
-            applet.update();
         }
     }
 }
