@@ -1,3 +1,8 @@
+// Programmer:  Douglas Jordan
+// Section:     1
+// Program:     Project03-Toll Road System (TollReport.java)
+// Date:        12/9/09
+// Description: This class is the our special feature. It provides some statistics about the exits.
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -15,81 +20,82 @@ import javax.swing.JTable;
 
 public class TollReport extends JApplet
 {
-    private final String[] COLUMN_NAMES = {"Exit Name", "Profit", "Prequency of Car", "Frequency of Truck", "Frequency of Transmitter", "Frequency of Ticket"};
+    private final String[] COLUMN_NAMES = {"Exit Name", "Profit", "Prequency of Car", 
+                                           "Frequency of Truck", "Frequency of Transmitter",
+                                           "Frequency of Ticket"};             // Names of columns
 
-    private final int JFRAME_WIDTH = 700;
-    private final int JFRAME_HEIGHT = 500;
+    private final int JFRAME_WIDTH = 700;                                      // Width of JFrame
+    private final int JFRAME_HEIGHT = 500;                                     // Height of JFrame
 
-    private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";
-    private final String DBUSER = "root";
-    private final String DBPASS = "root";
+    private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";   // URL of the database
+    private final String DBUSER = "root";                                      // Username of database
+    private final String DBPASS = "root";                                      // Password of database
 
-    private Connection dbConnection;
+    private Connection dbConnection;                                           // Connection to the db
 
-    private Statement transactionsStatement;
+    private Statement transactionsStatement;                                   // Statement for trans.
 
-    private ResultSet transactionsResults;
+    private ResultSet transactionsResults;                                     // Results for transact.
 
-    private String transactionsQuerry;
+    private String transactionsQuerry;                                         // Querry for transact.
 
+    private JFrame window;                                                     //Popup window Jframe
 
-
-    private JFrame window;
-
-    private JPanel tablePanel;
-    private JPanel topPanel;
+    private JPanel tablePanel;                                                 // Panel for the table
     private JPanel mainPanel;
 
-    private BorderLayout tableLayout;
-    private FlowLayout topLayout;
-    private BorderLayout appletLayout;
+    private BorderLayout tableLayout;                                          // Layout for table panel
+    private BorderLayout appletLayout;                                         // Layout for the window
 
-    private JTable reportTable;
-
-    private Object[][] data = new Object[20][7];
-
-
+    private JTable reportTable;                                                // JTable to display exit
+                                                                               //   stats.
+    private Object[][] data = new Object[20][6];                               // Null array to populate
+                                                                               //   the table
     public TollReport()
+    // POST: The database connection is initialized.
     {
         startDBConnection();
     }
 
     @Override
     public void init()
+    // POST: The window and gui are setup, and the update method is called.
     {
         window = new JFrame("Toll Report");
 
+        // INITIALIZE PANELS
         tablePanel = new JPanel();
-        topPanel = new JPanel();
         mainPanel = new JPanel();
 
+        // INITIALIZE LAYOUTS
         tableLayout = new BorderLayout();
-        topLayout = new FlowLayout();
         appletLayout = new BorderLayout();
 
+        // SET LAYOUTS
         tablePanel.setLayout(tableLayout);
-        topPanel.setLayout(topLayout);
         mainPanel.setLayout(appletLayout);
 
+        // SET UP TABLE / TABLE PANEL
         reportTable = new JTable(data, COLUMN_NAMES);
-
         tablePanel.add(reportTable.getTableHeader(), BorderLayout.NORTH);
         tablePanel.add(reportTable, BorderLayout.CENTER);
 
-        mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(tablePanel, BorderLayout.CENTER);
 
+        // SETUP WINDOW
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         window.setSize(JFRAME_WIDTH, JFRAME_HEIGHT);
         window.setVisible(true);
         window.setResizable(false);
-
         window.add(mainPanel);
         setSize(0,0);
+
+        // POPULATE TABLE
         update();
     }
 
     private void startDBConnection()
+    // POST: The database connection is setup and initialized, and the statement object is initialized
     {
         try
         {
@@ -120,7 +126,9 @@ public class TollReport extends JApplet
     }
 
     private void update()
+    // POST: The table is populated with the statistics from the transactions table.
     {
+        // TEMPORARY VARIABLES
         int maxExit = 0;
         int row = 0;
         int car = 0;
@@ -140,55 +148,63 @@ public class TollReport extends JApplet
 
             for(int currentExit = 0; currentExit <= maxExit; currentExit++)
             {
-                transactionsQuerry = "select TRANSACTION_ID from transactions where exit_id = " + currentExit;
+                transactionsQuerry = "select TRANSACTION_ID from transactions where exit_id = " +
+                        currentExit;
                 transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                             
 
-                if(transactionsResults.next() == true)
+                if(transactionsResults.next() == true) // If the exit actually was in the transactions
+                                                       //    table
                 {
-                    transactionsQuerry = "select EXIT_NUMBER A from EXITS where exit_id = " + currentExit;
+                    transactionsQuerry = "select EXIT_NUMBER A from EXITS where exit_id = " +
+                            currentExit;
                     transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     reportTable.setValueAt(transactionsResults.getString("A"), row, 0);
 
-                    transactionsQuerry = "select sum(AMOUNT_PAID) A from transactions where exit_id = " + currentExit;
+                    transactionsQuerry = "select sum(AMOUNT_PAID) A from transactions where exit_id = "
+                            + currentExit;
                     transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     reportTable.setValueAt(transactionsResults.getDouble("A"), row, 1);
 
-                    transactionsQuerry = "select count(*) A from transactions where class = 'Car' and exit_id = " + currentExit;
+                    transactionsQuerry = "select count(*) A from transactions where class = 'Car' and" +
+                            " exit_id = " + currentExit;
                     transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     car = transactionsResults.getInt("A");
-                    System.out.println("Car: " + car);
 
-                    transactionsQuerry = "select count(*) A from transactions where class = 'Truck' and exit_id = " + currentExit;
+                    transactionsQuerry = "select count(*) A from transactions where class = 'Truck' " +
+                            "and exit_id = " + currentExit;
                     transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     truck = transactionsResults.getInt("A");
-                    System.out.println("Truck: " + truck);
 
                     classTotal = car + truck;
-                                        System.out.println("Class total: " + classTotal);
 
-                    reportTable.setValueAt("" + Integer.toString(car) + " / " + Integer.toString(classTotal), row, 2);
-                    reportTable.setValueAt("" + Integer.toString(truck) + " / " + Integer.toString(classTotal), row, 3);
+                    reportTable.setValueAt("" + Integer.toString(car) + " / " +
+                            Integer.toString(classTotal), row, 2);
+                    reportTable.setValueAt("" + Integer.toString(truck) + " / " +
+                            Integer.toString(classTotal), row, 3);
                    
-                    transactionsQuerry = "select count(*) A from transactions where payment_type = 'transmitters' and exit_id = " + currentExit;
+                    transactionsQuerry = "select count(*) A from transactions where payment_type = " +
+                            "'Transmitter' and exit_id = " + currentExit;
                     transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     transmitters = transactionsResults.getInt("A");
-                    System.out.println(transmitters);
 
-                    transactionsQuerry = "select count(*) A from transactions where payment_type = 'tickets' and exit_id = " + currentExit;
+                    transactionsQuerry = "select count(*) A from transactions where payment_type = " +
+                            "'Ticket' and exit_id = " + currentExit;
                     transactionsResults = transactionsStatement.executeQuery(transactionsQuerry);
                     transactionsResults.next();
                     tickets = transactionsResults.getInt("A");
-                    System.out.println(tickets);
 
                     paymentTotal = transmitters + tickets;
-                    reportTable.setValueAt("" + Integer.toString(transmitters) + " / " + Integer.toString(paymentTotal), row, 4);
-                    reportTable.setValueAt("" + Integer.toString(tickets) + " / " + Integer.toString(paymentTotal), row, 5);
+
+                    reportTable.setValueAt("" + Integer.toString(transmitters) + " / " +
+                            Integer.toString(paymentTotal), row, 4);
+                    reportTable.setValueAt("" + Integer.toString(tickets) + " / " +
+                            Integer.toString(paymentTotal), row, 5);
 
                     row++;
                 }
@@ -202,6 +218,7 @@ public class TollReport extends JApplet
 
         @Override
     public void destroy()
+    //POST: The database related objects are closed.
     {
         try
         {
