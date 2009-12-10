@@ -1,3 +1,11 @@
+// Programmer:  Douglas Jordan
+// Section:     1
+// Program:     Project03-Toll Road System (Applet.java)
+// Date:        12/9/09
+// Description: This class is the main interface for the database. It has
+//              buttons to start and end trips as well as deposit money. It also
+//              displays all trips from the trips database table in a JTable.
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -14,39 +22,45 @@ import javax.swing.JTable;
 
 public class Applet extends JApplet implements ActionListener
 {
-    private final String[] COLUMN_NAMES = {"Start exit", "End exit", "Date",
-                                           "Payment", "Class", "Status",
+    private final String[] COLUMN_NAMES = {"Start exit", // Names of the columns in the table.
+                                           "End exit",   
+                                           "Date",
+                                           "Payment",
+                                           "Class",
+                                           "Status",
                                            "Customer"};
 
-    private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";
-    private final String DBUSER = "root";
-    private final String DBPASS = "root";
 
-    private final int APPLET_WIDTH = 600;
-    private final int APPLET_HEIGHT = 400;
+    private final String DBURL = 
+            "jdbc:derby://localhost:1527/Toll-Road-DB";  // URL of the database
+    private final String DBUSER = "root";                // User name for the db
+    private final String DBPASS = "root";                // Password for the db
 
-    private int rowCounter;
+    private final int APPLET_WIDTH = 600;                // Width of the applet
+    private final int APPLET_HEIGHT = 400;               // Height of the applet
 
-    private Connection dbConnection;
+    private int rowCounter;                              // Current row
 
-    private Statement tripsStatement;
+    private Connection dbConnection;                     // Connection to the db
 
-    private ResultSet tripsResults;
+    private Statement tripsStatement;                    // Trips statement object
 
-    private String tripsQuerry;
+    private ResultSet tripsResults;                      // Results set for trip
 
-    private JButton startButton;
-    private JButton endButton;
-    private JButton depositButton;
-    private JButton statementButton;
-    private JButton tollReportButton;
+    private String tripsQuerry;                          // Querry for trips
 
-    private BorderLayout appletLayout;
-    private BorderLayout tablePanelLayout;
-    private FlowLayout buttonPanelLayout;
+    private JButton startButton;                         // Start button
+    private JButton endButton;                           // End button
+    private JButton depositButton;                       // Deposit money button
+    private JButton statementButton;                     // Account statement button
+    private JButton tollReportButton;                    // Toll report(special feature) button
 
-    private JPanel buttonPanel;
-    private JPanel tablePanel;
+    private BorderLayout appletLayout;                   // Layout for the applet
+    private BorderLayout tablePanelLayout;               // Layout for the table panel
+    private FlowLayout buttonPanelLayout;                // Layout for the button panel
+
+    private JPanel buttonPanel;                          // Panel for the buttons
+    private JPanel tablePanel;                           // Panel for the table
 
     private JTable resultsTable;
 
@@ -175,7 +189,7 @@ public class Applet extends JApplet implements ActionListener
         }
         else if(e.getSource() == endButton)
         {
-            EndTrip end = new EndTrip();
+            EndTrip end = new EndTrip(this);
             end.init();
         }
         else if(e.getSource() == depositButton)

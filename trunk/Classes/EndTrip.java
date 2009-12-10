@@ -104,10 +104,13 @@ public class EndTrip extends JApplet implements ActionListener
 
     private boolean dbTransmitter_IDboolean;
 
-    DecimalFormat currencyFormat = new DecimalFormat("$###,###.00");
+    private Applet applet;
 
-    public EndTrip()
+    private DecimalFormat currencyFormat = new DecimalFormat("$###,###.00");
+
+    public EndTrip(Applet applet)
     {
+        this.applet = applet;
         try
         {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
@@ -451,6 +454,7 @@ public class EndTrip extends JApplet implements ActionListener
     @Override
     public void destroy()
     {
+        applet.update();
         try
         {
             dbConnection.close();
@@ -571,12 +575,12 @@ public class EndTrip extends JApplet implements ActionListener
             }
         }
 
-        if(e.getSource() == jcbChangeStatus)
+        else if(e.getSource() == jcbChangeStatus)
         {
             dbNewStatus = jcbChangeStatus.getSelectedItem().toString();
         }
 
-        if(e.getSource() == jbSubmit)
+        else if(e.getSource() == jbSubmit)
         {
             newEndExit = jcbSelectEndExit.getSelectedItem().toString();
             newEndExit = newEndExit.substring(0, newEndExit.indexOf(" "));
@@ -718,6 +722,7 @@ public class EndTrip extends JApplet implements ActionListener
             {
 
             }
+            applet.update();
         }
     }
 }
