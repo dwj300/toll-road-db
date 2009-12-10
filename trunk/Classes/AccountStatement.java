@@ -211,7 +211,6 @@ public class AccountStatement extends JApplet implements ActionListener
                 {
                     address = resultsAccountAddress.getString("ADDRESS");
                     custAddress.setText(address);
-                    System.out.println(address);
                 }
             }
             catch(SQLException sqle)
@@ -264,5 +263,29 @@ public class AccountStatement extends JApplet implements ActionListener
                 historyTable.setValueAt(null, r, c);
             }
         }     
+    }
+
+    @Override
+    public void destroy()
+    {
+        try
+        {
+            dbConnection.close();
+            statementNames.close();
+            statementTransmitters.close();
+            statementAccountBalance.close();
+            statementHistory.close();
+            statementAddress.close();
+
+            resultsNames.close();
+            resultsTransmitters.close();
+            resultsAccountBalance.close();
+            resultsAccountAddress.close();
+            resultsAccountHistory.close();
+        }
+        catch(SQLException e)
+        {
+
+        }
     }
 }

@@ -175,7 +175,8 @@ public class Applet extends JApplet implements ActionListener
         }
         else if(e.getSource() == endButton)
         {
-
+            EndTrip end = new EndTrip();
+            end.init();
         }
         else if(e.getSource() == depositButton)
         {
@@ -191,6 +192,21 @@ public class Applet extends JApplet implements ActionListener
         {
             TollReport report = new TollReport();
             report.init();
+        }
+    }
+
+    @Override
+    public void destroy()
+    {
+        try
+        {
+            dbConnection.close();
+            tripsStatement.close();
+            tripsResults.close();
+        }
+        catch(SQLException e)
+        {
+
         }
     }
 }
