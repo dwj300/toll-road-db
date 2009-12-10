@@ -1,14 +1,3 @@
-create table transactions
-(
-   transaction_id smallint not null,                 /* Transaction id, primary key     */
-   exit_id smallint not null,                        /* Exit id, foreign key		    */
-   amount_paid double not null, 					 /* Amount paid, e.g. 12.34		    */
-   payment_type varchar(20) not null,				 /* Payment, ticket or transmitter  */
-   class varchar(10) not null,						 /* Class of the vehicle. Car|Truck */
-   constraint pk_transaction_id primary key (transaction_id),
-   constraint fk_exit_id foreign key (exit_id) references exits (exit_id)
-);
-
 create table exits
 (
    exit_id smallint,                                 /* Exit id, primary key            */
@@ -53,4 +42,15 @@ create table trips
    constraint fk_transmitter_id foreign key (transmitter_id) references transmitters (transmitter_id),
    constraint fk_start_exit_id foreign key (start_exit_id) references exits (exit_id),
    constraint fk_end_exit_id foreign key (end_exit_id) references exits (exit_id)
+);
+
+create table transactions
+(
+   transaction_id smallint not null,                 /* Transaction id, primary key     */
+   exit_id smallint not null,                        /* Exit id, foreign key		    */
+   amount_paid double not null, 					 /* Amount paid, e.g. 12.34		    */
+   payment_type varchar(20) not null,				 /* Payment, ticket or transmitter  */
+   class varchar(10) not null,						 /* Class of the vehicle. Car|Truck */
+   constraint pk_transaction_id primary key (transaction_id),
+   constraint fk_exit_id foreign key (exit_id) references exits (exit_id)
 );

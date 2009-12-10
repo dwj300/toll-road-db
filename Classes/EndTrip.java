@@ -23,9 +23,11 @@ public class EndTrip extends JApplet implements ActionListener
     Statement sqlStatementGetExitInfo;
     Statement sqlStatementGetEndExits;
     Statement sqlStatementGetNewEndExit;
+    Statement sqlStatementGetTransactionID;
     Statement sqlStatementUpdateStatus;
     Statement sqlStatementUpdateTrips;
     Statement sqlStatementUpdateTransmitter;
+    Statement sqlStatementUpdateTransactions;
 
     ResultSet sqlResultsGetTripsUnderway;
     ResultSet sqlResultsGetTripsCBNPaid;
@@ -34,6 +36,7 @@ public class EndTrip extends JApplet implements ActionListener
     ResultSet sqlResultsGetExitInfo;
     ResultSet sqlResultsGetEndExits;
     ResultSet sqlResultsGetNewEndExit;
+    ResultSet sqlResultsGetTransactionID;
 
     private final String DBURL = "jdbc:derby://localhost:1527/Toll-Road-DB";
     private final String DBUSER = "root";
@@ -89,6 +92,7 @@ public class EndTrip extends JApplet implements ActionListener
     private String dbStatus;
     private String dbNewStatus = "Completed But Not Paid";
     private int dbTransmitter_ID;
+    private int dbTransaction_ID;
     private double dbCurrent_Balance;
     private double dbNew_Balance;
     private double dbTotalDue;
@@ -104,10 +108,13 @@ public class EndTrip extends JApplet implements ActionListener
 
     private boolean dbTransmitter_IDboolean;
 
+    private Applet applet;
+
     DecimalFormat currencyFormat = new DecimalFormat("$###,###.00");
 
-    public EndTrip()
+    public EndTrip(Applet applet)
     {
+        this.applet = applet;
         try
         {
             Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
@@ -119,9 +126,11 @@ public class EndTrip extends JApplet implements ActionListener
             sqlStatementGetExitInfo = dbConnection.createStatement();
             sqlStatementGetEndExits = dbConnection.createStatement();
             sqlStatementGetNewEndExit = dbConnection.createStatement();
+            sqlStatementGetTransactionID = dbConnection.createStatement();
             sqlStatementUpdateStatus = dbConnection.createStatement();
             sqlStatementUpdateTrips = dbConnection.createStatement();
             sqlStatementUpdateTransmitter = dbConnection.createStatement();
+            sqlStatementUpdateTransactions = dbConnection.createStatement();
         }
         catch(InstantiationException ie)
         {
@@ -446,11 +455,26 @@ public class EndTrip extends JApplet implements ActionListener
         {
 
         }
+
+        try
+        {
+            sqlResultsGetTransactionID = sqlStatementGetTransactionID.executeQuery("select max(transaction_id) transaction_id from transactions");
+            while(sqlResultsGetTransactionID.next())
+            {
+                dbTransaction_ID = sqlResultsGetTransactionID.getInt("transaction_id");
+            }
+        }
+        catch(SQLException sqle)
+        {
+
+        }
+
     }
 
     @Override
     public void destroy()
     {
+        applet.update();
         try
         {
             dbConnection.close();
@@ -582,8 +606,24 @@ public class EndTrip extends JApplet implements ActionListener
 
         if(e.getSource() == jbSubmit)
         {
+            try
+            {
+                sqlResultsGetTransactionID = sqlStatementGetTransactionID.executeQuery("select max(transaction_id) transaction_id from transactions");
+                while(sqlResultsGetTransactionID.next())
+                {
+                    dbTransaction_ID = sqlResultsGetTransactionID.getInt("transaction_id") + 1;
+                }
+            }
+            catch(SQLException sqle)
+            {
+
+            }
+            
+            System.out.println(dbStatus);
+            System.out.println(dbNewStatus);
             newEndExit = jcbSelectEndExit.getSelectedItem().toString();
             newEndExit = newEndExit.substring(0, newEndExit.indexOf(" "));
+
             try
             {             
                 sqlResultsGetNewEndExit = sqlStatementGetNewEndExit.executeQuery("select exit_id from exits where exit_number = '" + newEndExit +"'");
@@ -606,7 +646,13 @@ public class EndTrip extends JApplet implements ActionListener
                                 //update transmitter with new balance
                                 sqlStatementUpdateTransmitter.execute("update transmitters set account_balance = " + dbNew_Balance + " where transmitter_id = " + dbTransmitter_ID);
                                 sqlStatementUpdateStatus.execute("update trips set status = '" + dbNewStatus + "' where trip_id = " + dbTrip_ID);
-                                jlStatus.setText("Successfully Updated Transmitters and Trips, Paid");
+                                sqlStatementUpdateTransactions.execute("insert into transactions (transaction_id, exit_id, amount_paid, payment_type, class) values (" + dbTransaction_ID + ", " + newEndExitID + ", " + dbTotalDue + ", '" +  dbPayment_Type + "', '" + dbVehicle_Type + "')");
+                                jlStatus.setText("1 Successfully Updated Transmitters and Trips, Paid");
+                                System.out.println(dbTransaction_ID);
+                                System.out.println(dbTotalDue);
+                                System.out.println(dbPayment_Type);
+                                System.out.println(dbVehicle_Type);
+                                System.out.println(newEndExitID);
                            }
                            catch(SQLException sqle)
                            {
@@ -615,30 +661,44 @@ public class EndTrip extends JApplet implements ActionListener
                         }
                         else
                         {
-                            jlStatus.setText("");
+                            System.out.println("2");
+                            jlStatus.setText("2");
                         }
                     }
                     // The trip is underway, I don't know the exit number
                     else if(dbStatus.compareTo("Underway") == 0)
                     {
+                        System.out.println("help");
                         // And I want to complete it, but not pay it
                         if(dbNewStatus.compareTo("Completed But Not Paid") == 0)
                         {
                             sqlStatementUpdateStatus.execute("update trips set status = '" + dbNewStatus + "' where trip_id = " + dbTrip_ID);
                             sqlStatementUpdateTrips.execute("update trips set end_exit_id = " + newEndExitID + " where trip_id = " + dbTrip_ID);
-                            jlStatus.setText("Successfully Updated Transmitter and Trips, Not Paid");
+                            jlStatus.setText("3 Successfully Updated Transmitter and Trips, Not Paid");
                         }
                         // And I want to complete it and pay it
                         else if(dbNewStatus.compareTo("Paid") == 0)
                         {
+                            System.out.println("me");
                             sqlStatementUpdateTrips.execute("update trips set end_exit_id = " + newEndExitID + " where trip_id = " + dbTrip_ID);
+                            System.out.println("me1");
                             sqlStatementUpdateTransmitter.execute("update transmitters set account_balance = " + dbNew_Balance + " where transmitter_id = " + dbTransmitter_ID);
+                            System.out.println("me2");
                             sqlStatementUpdateStatus.execute("update trips set status = '" + dbNewStatus + "' where trip_id = " + dbTrip_ID);
-                            jlStatus.setText("Successfully Updated Transmitter and Trips, Paid");
+                            System.out.println("me3");
+                            sqlStatementUpdateTransactions.execute("insert into transactions (transaction_id, exit_id, amount_paid, payment_type, class) values (" + dbTransaction_ID + ", " + newEndExitID + ", " + dbTotalDue + ", '" +  dbPayment_Type + "', '" + dbVehicle_Type + "')");
+                            System.out.println("please");
+                            jlStatus.setText("4 Successfully Updated Transmitter and Trips, Paid");
+                            System.out.println(dbTransaction_ID);
+                            System.out.println(dbTotalDue);
+                            System.out.println(dbPayment_Type);
+                            System.out.println(dbVehicle_Type);
+                            System.out.println(newEndExitID);
                         }
                         else
                         {
-                            jlStatus.setText("");
+                            System.out.println("5");
+                            jlStatus.setText("5");
                         }
 
                     }
@@ -651,12 +711,27 @@ public class EndTrip extends JApplet implements ActionListener
                     {
                         if(dbNewStatus.compareTo("Paid") == 0)
                         {
+                            System.out.println("help");
                             sqlStatementUpdateStatus.execute("update trips set status = '" + dbNewStatus + "' where trip_id = " + dbTrip_ID);
-                            jlStatus.setText("Successfully Updated Trips, Paid");
+                            System.out.println("me");
+                            System.out.println(dbTransaction_ID);
+                            System.out.println(dbTotalDue);
+                            System.out.println(dbPayment_Type);
+                            System.out.println(dbVehicle_Type);
+                            System.out.println(newEndExitID);
+                            sqlStatementUpdateTransactions.execute("insert into transactions (transaction_id, exit_id, amount_paid, payment_type, class) values (" + dbTransaction_ID + ", " + newEndExitID + ", " + dbTotalDue + ", '" +  dbPayment_Type + "', '" + dbVehicle_Type + "')");
+                            System.out.println("please");
+                            jlStatus.setText("6 Successfully Updated Trips, Paid");
+                            System.out.println(dbTransaction_ID);
+                            System.out.println(dbTotalDue);
+                            System.out.println(dbPayment_Type);
+                            System.out.println(dbVehicle_Type);
+                            System.out.println(newEndExitID);
                         }
                         else
                         {
-                            jlStatus.setText("");
+                            System.out.println("7");
+                            jlStatus.setText("7");
                         }
                     }
                     // I need the exit number
@@ -666,17 +741,24 @@ public class EndTrip extends JApplet implements ActionListener
                         {
                             sqlStatementUpdateTrips.execute("update trips set end_exit_id = " + newEndExitID + " where trip_id = " + dbTrip_ID);
                             sqlStatementUpdateStatus.execute("update trips set status = '" + dbNewStatus + "' where trip_id = " + dbTrip_ID);
-                            jlStatus.setText("Successfully Updated Trips, Paid");
+                            sqlStatementUpdateTransactions.execute("insert into transactions (transaction_id, exit_id, amount_paid, payment_type, class) values (" + dbTransaction_ID + ", " + newEndExitID + ", " + dbTotalDue + ", '" +  dbPayment_Type + "', '" + dbVehicle_Type + "')");
+                            jlStatus.setText("8 Successfully Updated Trips, Paid");
+                            System.out.println(dbTransaction_ID);
+                            System.out.println(dbTotalDue);
+                            System.out.println(dbPayment_Type);
+                            System.out.println(dbVehicle_Type);
+                            System.out.println(newEndExitID);
                         }
 
                         else if(dbNewStatus.compareTo("Complete But Not Paid") == 0)
                         {
                             sqlStatementUpdateStatus.execute("update trips set status = '" + dbNewStatus + "' where trip_id = " + dbTrip_ID);
-                            jlStatus.setText("Successfully Updated Trips, Not Paid");
+                            jlStatus.setText("9 Successfully Updated Trips, Not Paid");
                         }
                         else
                         {
-                            jlStatus.setText("");
+                            System.out.println("10");
+                            jlStatus.setText("10");
                         }
                     }
                 }
@@ -705,7 +787,21 @@ public class EndTrip extends JApplet implements ActionListener
                    jcbSelectTrip.addItem("Trip " + sqlResultsGetTripsUnderway.getInt("trip_id") + " on " + sqlResultsGetTripsUnderway.getString("date") + " from " + sqlResultsGetTripsUnderway.getString("start_exit") + " : " + sqlResultsGetTripsUnderway.getString("start_nearest_town"));
                 }
 
+                try
+                {
+                    sqlResultsGetTransactionID = sqlStatementGetTransactionID.executeQuery("select max(transaction_id) transaction_id from transactions");
+                    while(sqlResultsGetTransactionID.next())
+                    {
+                        dbTransaction_ID = sqlResultsGetTransactionID.getInt("transaction_id");
+                    }
+                }
+                catch(SQLException sqle)
+                {
+
+                }
+
                 jcbChangeStatus.setSelectedIndex(0);
+                jcbSelectEndExit.setSelectedIndex(0);
 
                 try
                 {
@@ -725,6 +821,89 @@ public class EndTrip extends JApplet implements ActionListener
                     jcbSelectEndExit.setVisible(false);
                 }
 
+            }
+            catch(SQLException sqle)
+            {
+
+            }
+            applet.update();
+        }
+
+        if(e.getSource() == jcbSelectEndExit)
+        {
+            newEndExit = jcbSelectEndExit.getSelectedItem().toString();
+            newEndExit = newEndExit.substring(0, newEndExit.indexOf(" "));
+
+            try
+            {
+
+                try
+                {
+                    dbTrip_ID = jcbSelectTrip.getSelectedItem().toString();
+                    dbTrip_ID = dbTrip_ID.substring(dbTrip_ID.indexOf('p')+2, dbTrip_ID.indexOf(" ", dbTrip_ID.indexOf('p')+2));
+                }
+                catch(NullPointerException npe)
+                {
+
+                }
+                sqlResultsGetNewEndExit = sqlStatementGetNewEndExit.executeQuery("select exit_id from exits where exit_number = '" + newEndExit +"'");
+                while(sqlResultsGetNewEndExit.next())
+                {
+                    newEndExitID = sqlResultsGetNewEndExit.getInt("exit_id");
+                    System.out.println(newEndExitID);
+                }
+
+                if(!dbTransmitter_IDboolean)
+                {
+                    sqlResultsGetTransmitterInfo = sqlStatementGetTransmitterInfo.executeQuery("select account_balance, (select name from customers where t.customer_id = customer_id) name from transmitters t where transmitter_id = " + dbTransmitter_ID);
+                    while(sqlResultsGetTransmitterInfo.next())
+                    {
+                       dbCurrent_Balance = sqlResultsGetTransmitterInfo.getDouble("account_balance");
+                       System.out.println(dbCurrent_Balance);
+                       dbCustomer_Name = sqlResultsGetTransmitterInfo.getString("name");
+                    }
+                }
+
+                sqlResultsGetExitInfo = sqlStatementGetExitInfo.executeQuery("select (select mile_marker from exits where exit_id = " + newEndExitID + ") end_mile_Marker from exits");
+                while(sqlResultsGetExitInfo.next())
+                {
+                   endMileMarker = new Integer(sqlResultsGetExitInfo.getString("end_mile_marker")).intValue();
+                }
+                
+                milesTraveled = Math.abs(endMileMarker - startMileMarker);
+
+                System.out.println(milesTraveled);
+                if(dbVehicle_Type.compareTo("Truck") == 0)
+                {
+                    dbTotalDue = milesTraveled * TRUCK_PER_MILE;
+                }
+                else if(dbVehicle_Type.compareTo("Car") == 0)
+                {
+                    dbTotalDue = milesTraveled * CAR_PER_MILE;
+                }
+
+                System.out.println(dbCurrent_Balance);
+                dbNew_Balance = dbCurrent_Balance - dbTotalDue;
+
+                jlMilesTraveledValue.setText(new Integer(milesTraveled).toString() + " miles");
+                jlVehicleTypeValue.setText(dbVehicle_Type);
+                jlTotalDueValue.setText(currencyFormat.format(dbTotalDue));
+                jlPaymentTypeValue.setText(dbPayment_Type);
+
+                if(!dbTransmitter_IDboolean)
+                {
+                    jlName.setText(dbCustomer_Name);
+                    jlTransmitterIDValue.setText(new Integer(dbTransmitter_ID).toString());
+                    jlTransmitterCurrentBalanceValue.setText(currencyFormat.format(dbCurrent_Balance));
+                    jlTransmitterNewBalanceValue.setText(currencyFormat.format(dbNew_Balance));
+                }
+                else if(dbTransmitter_IDboolean)
+                {
+                    jlName.setText("");
+                    jlTransmitterIDValue.setText("");
+                    jlTransmitterCurrentBalanceValue.setText("");
+                    jlTransmitterNewBalanceValue.setText("");
+                }
             }
             catch(SQLException sqle)
             {
